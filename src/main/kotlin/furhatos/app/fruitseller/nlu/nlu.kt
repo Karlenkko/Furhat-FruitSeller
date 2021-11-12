@@ -6,6 +6,8 @@ import furhatos.nlu.Intent
 import furhatos.nlu.ListEntity
 import furhatos.util.Language
 
+import furhatos.nlu.common.Number
+
 class Fruit : EnumEntity(stemming = true, speechRecPhrases =  true) {
     override fun getEnum(lang: Language): List<String> {
         return listOf("banana", "orange", "apple", "cherimoya", "mango")
@@ -32,7 +34,7 @@ class RequestOptions: Intent() {
 class FruitList : ListEntity<QuantifiedFruit>()
 
 class QuantifiedFruit(
-        var count: Int = 1,
+        var count: Number = Number(1),
         val fruit: Fruit? = null) : ComplexEnumEntity() {
 
     override fun getEnum(lang: Language): List<String> {

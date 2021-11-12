@@ -3,6 +3,7 @@ package furhatos.app.fruitseller.flow
 import furhatos.app.fruitseller.nlu.*
 import furhatos.nlu.common.*
 import furhatos.flow.kotlin.*
+import furhatos.nlu.common.Number
 import furhatos.util.Language
 
 val Start : State = state(Interaction) {
@@ -54,32 +55,40 @@ val TakingOrder = state(parent = Options) {
         furhat.say("Okay, that's a shame. Have a splendid day!")
         goto(Idle)
     }
+
+    onReentry {
+        random(
+                { furhat.ask("How about some fruits?") },
+                { furhat.ask("Do you want some fruits?") }
+        )
+    }
 }
 
 fun OrderReceived(fruits: FruitList) : State = state(Options) {
     onEntry {
         furhat.say("${fruits.text}, what a lovely choice!")
         fruits.list.forEach {
-            users.current.order.fruits.list.add(it)
             // TODO: increment existing fruit
-//            run breaking@{
-//                var ord = it
-//                if (users.current.order.fruits.list.isEmpty()) {
-//                    users.current.order.fruits.list.add(it)
-//                } else {
-//                    users.current.order.fruits.list.forEach {
-//                        if (it.fruit == ord.fruit) {
-//                            it.count = it.count.plus(ord.count)
-//                            return@breaking
-//                        } else {
-//                            users.current.order.fruits.list.add(it)
-//                            return@breaking
-//                        }
-//                    }
-//                }
-//            }
+            run breaking@{
+                val ord = it
+                if (users.current.order.fruits.list.isEmpty()) {
+                    users.current.order.fruits.list.add(it)
+                } else {
+                    users.current.order.fruits.list.forEach {
+                        if (it.fruit == ord.fruit) {
+                            it.count = Number(it.count.value?.plus(ord.count.value!!))
+                            return@breaking
+                        }
+                    }
+                    users.current.order.fruits.list.add(it)
+                }
+            }
 
         }
+        users.current.order.fruits.list.forEach {
+            println(it)
+        }
+        println()
         furhat.ask("Anything else?")
     }
 
